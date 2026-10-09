@@ -1,4 +1,5 @@
-import 'dart:ui' show SemanticsActionEvent, Tristate;
+// Keep semantics inspection compatible with the minimum Flutter 3.32 SDK.
+// ignore_for_file: deprecated_member_use
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -35,23 +36,19 @@ void main() {
       );
 
       final summary = find.bySemanticsLabel(RegExp('More information'));
-      expect(tester.getSemantics(summary).flagsCollection.isButton, isTrue);
       expect(
-        tester.getSemantics(summary).flagsCollection.isExpanded !=
-            Tristate.none,
+          tester.getSemantics(summary).hasFlag(SemanticsFlag.isButton), isTrue);
+      expect(
+        tester.getSemantics(summary).hasFlag(SemanticsFlag.hasExpandedState),
         isTrue,
       );
-      expect(
-          tester.getSemantics(summary).flagsCollection.isExpanded ==
-              Tristate.isTrue,
+      expect(tester.getSemantics(summary).hasFlag(SemanticsFlag.isExpanded),
           isFalse);
       expect(find.bySemanticsLabel('Hidden content'), findsNothing);
 
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);
       await tester.pumpAndSettle();
-      expect(
-          tester.getSemantics(summary).flagsCollection.isFocused ==
-              Tristate.isTrue,
+      expect(tester.getSemantics(summary).hasFlag(SemanticsFlag.isFocused),
           isTrue);
       final outline = find.descendant(
         of: find.byType(FocusableActionDetector),
@@ -65,22 +62,16 @@ void main() {
 
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await tester.pumpAndSettle();
-      expect(
-          tester.getSemantics(summary).flagsCollection.isExpanded ==
-              Tristate.isTrue,
+      expect(tester.getSemantics(summary).hasFlag(SemanticsFlag.isExpanded),
           isTrue);
       expect(find.bySemanticsLabel('Hidden content'), findsOneWidget);
 
       await tester.sendKeyEvent(LogicalKeyboardKey.space);
       await tester.pumpAndSettle();
-      expect(
-          tester.getSemantics(summary).flagsCollection.isExpanded ==
-              Tristate.isTrue,
+      expect(tester.getSemantics(summary).hasFlag(SemanticsFlag.isExpanded),
           isFalse);
       expect(find.bySemanticsLabel('Hidden content'), findsNothing);
-      expect(
-          tester.getSemantics(summary).flagsCollection.isFocused ==
-              Tristate.isTrue,
+      expect(tester.getSemantics(summary).hasFlag(SemanticsFlag.isFocused),
           isTrue);
     } finally {
       semantics.dispose();
@@ -144,44 +135,30 @@ void main() {
           await tester.sendKeyEvent(LogicalKeyboardKey.tab,
               platform: 'android');
           await tester.pumpAndSettle();
-          expect(
-              tester.getSemantics(summary).flagsCollection.isFocused ==
-                  Tristate.isTrue,
+          expect(tester.getSemantics(summary).hasFlag(SemanticsFlag.isFocused),
               isTrue);
-          expect(
-              tester.getSemantics(summary).flagsCollection.isExpanded ==
-                  Tristate.isTrue,
+          expect(tester.getSemantics(summary).hasFlag(SemanticsFlag.isExpanded),
               isFalse);
 
           await tester.sendKeyDownEvent(key, platform: 'android');
           await tester.pumpAndSettle();
-          expect(
-              tester.getSemantics(summary).flagsCollection.isExpanded ==
-                  Tristate.isTrue,
+          expect(tester.getSemantics(summary).hasFlag(SemanticsFlag.isExpanded),
               isTrue);
           await tester.sendKeyUpEvent(key, platform: 'android');
           await tester.pumpAndSettle();
-          expect(
-              tester.getSemantics(summary).flagsCollection.isExpanded ==
-                  Tristate.isTrue,
+          expect(tester.getSemantics(summary).hasFlag(SemanticsFlag.isExpanded),
               isTrue);
           await tester.sendKeyDownEvent(key, platform: 'android');
           await tester.pumpAndSettle();
-          expect(
-              tester.getSemantics(summary).flagsCollection.isExpanded ==
-                  Tristate.isTrue,
+          expect(tester.getSemantics(summary).hasFlag(SemanticsFlag.isExpanded),
               isFalse);
           await tester.sendKeyRepeatEvent(key, platform: 'android');
           await tester.pumpAndSettle();
-          expect(
-              tester.getSemantics(summary).flagsCollection.isExpanded ==
-                  Tristate.isTrue,
+          expect(tester.getSemantics(summary).hasFlag(SemanticsFlag.isExpanded),
               isTrue);
           await tester.sendKeyUpEvent(key, platform: 'android');
           await tester.pumpAndSettle();
-          expect(
-              tester.getSemantics(summary).flagsCollection.isExpanded ==
-                  Tristate.isTrue,
+          expect(tester.getSemantics(summary).hasFlag(SemanticsFlag.isExpanded),
               isTrue);
         } finally {
           semantics.dispose();
@@ -199,18 +176,13 @@ void main() {
       await pumpHtml(tester, '<details open>Contents</details>');
       final summary = find.bySemanticsLabel(RegExp('Details'));
       final node = tester.getSemantics(summary);
-      expect(node.flagsCollection.isExpanded == Tristate.isTrue, isTrue);
-      tester.binding.performSemanticsAction(
-        SemanticsActionEvent(
-          type: SemanticsAction.tap,
-          viewId: tester.view.viewId,
-          nodeId: node.id,
-        ),
+      expect(node.hasFlag(SemanticsFlag.isExpanded), isTrue);
+      tester.binding.pipelineOwner.semanticsOwner!.performAction(
+        node.id,
+        SemanticsAction.tap,
       );
       await tester.pumpAndSettle();
-      expect(
-          tester.getSemantics(summary).flagsCollection.isExpanded ==
-              Tristate.isTrue,
+      expect(tester.getSemantics(summary).hasFlag(SemanticsFlag.isExpanded),
           isFalse);
       expect(find.bySemanticsLabel('Contents'), findsNothing);
     } finally {
@@ -262,9 +234,7 @@ void main() {
         final summary = find.bySemanticsLabel(RegExp('More information'));
         await tester.sendKeyEvent(LogicalKeyboardKey.tab);
         await tester.pumpAndSettle();
-        expect(
-            tester.getSemantics(summary).flagsCollection.isFocused ==
-                Tristate.isTrue,
+        expect(tester.getSemantics(summary).hasFlag(SemanticsFlag.isFocused),
             isTrue);
         for (final modifier in <LogicalKeyboardKey>[
           LogicalKeyboardKey.shiftLeft,
@@ -276,9 +246,7 @@ void main() {
           await tester.sendKeyEvent(key);
           await tester.sendKeyUpEvent(modifier);
           await tester.pumpAndSettle();
-          expect(
-              tester.getSemantics(summary).flagsCollection.isExpanded ==
-                  Tristate.isTrue,
+          expect(tester.getSemantics(summary).hasFlag(SemanticsFlag.isExpanded),
               isFalse);
         }
       } finally {
@@ -307,9 +275,7 @@ void main() {
         expect(await tester.sendKeyEvent(key), isFalse);
         await tester.pumpAndSettle();
         final summary = find.bySemanticsLabel(RegExp('More information'));
-        expect(
-            tester.getSemantics(summary).flagsCollection.isExpanded ==
-                Tristate.isTrue,
+        expect(tester.getSemantics(summary).hasFlag(SemanticsFlag.isExpanded),
             isFalse);
       } finally {
         semantics.dispose();
@@ -339,12 +305,9 @@ void main() {
         });
       }
 
-      collect(
-        tester.binding.renderViews.single.owner!.semanticsOwner!
-            .rootSemanticsNode!,
-      );
+      collect(tester.binding.pipelineOwner.semanticsOwner!.rootSemanticsNode!);
       final link = nodes.singleWhere((node) => node.label == 'Link text');
-      expect(link.flagsCollection.isLink, isTrue);
+      expect(link.hasFlag(SemanticsFlag.isLink), isTrue);
       expect(link.getSemanticsData().hasAction(SemanticsAction.tap), isTrue);
       expect(find.bySemanticsLabel('Image description'), findsOneWidget);
     } finally {

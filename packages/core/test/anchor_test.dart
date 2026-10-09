@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 
@@ -504,7 +503,9 @@ class _SliverListTestApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         body: CustomScrollView(
-          scrollCacheExtent: const ScrollCacheExtent.pixels(0),
+          // TODO: Use scrollCacheExtent when our minimum Flutter version >= 3.41.
+          // ignore: deprecated_member_use
+          cacheExtent: 0,
           slivers: [
             HtmlWidget(
               htmlDefault,
